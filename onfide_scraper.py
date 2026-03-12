@@ -1,10 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
+
 
 URL_ONFIDE = "https://onfide-vno.onnetfibra.cl/vno/service-requests"
 
@@ -38,15 +41,19 @@ def abrir_filtros(driver):
 
     driver.execute_script("arguments[0].click();", boton)
 
+
 def seleccionar_access_id(driver):
 
     wait = WebDriverWait(driver, 20)
 
     access = wait.until(
-        EC.element_to_be_clickable((By.XPATH, "//div[contains(text(),'AccessId')]"))
+        EC.element_to_be_clickable(
+            (By.XPATH, "//*[contains(text(),'AccessId')]")
+        )
     )
 
-    access.click()
+    driver.execute_script("arguments[0].click();", access)
+
 
 def buscar_access_id(driver, access_id):
 
@@ -57,9 +64,7 @@ def buscar_access_id(driver, access_id):
     )
 
     campo.clear()
-
     campo.send_keys(access_id)
-
     campo.send_keys(Keys.ENTER)
 
 
@@ -72,6 +77,8 @@ if __name__ == "__main__":
     print("✅ Login detectado")
 
     abrir_filtros(driver)
+
+    time.sleep(2)
 
     seleccionar_access_id(driver)
 
