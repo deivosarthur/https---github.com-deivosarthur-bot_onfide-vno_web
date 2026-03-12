@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.keys import Keys
 
 URL_ONFIDE = "https://onfide-vno.onnetfibra.cl/vno/service-requests"
 
@@ -68,10 +69,12 @@ if __name__ == "__main__":
 
     esperar_login()
 
-    print("✅ Login detectado, intentando abrir filtros...")
+    print("✅ Login detectado")
 
     abrir_filtros(driver)
 
-    print("✅ Filtros abiertos correctamente")
+    seleccionar_access_id(driver)
 
-    input("Presiona ENTER para cerrar el navegador...")
+    buscar_access_id(driver, "1-3IOKEL31")
+
+    input("Presiona ENTER para cerrar...")
