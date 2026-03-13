@@ -1,6 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import time
+import pyperclip
+from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -57,16 +59,21 @@ def seleccionar_access_id(driver):
 
 def buscar_access_id(driver, access_id):
 
-    wait = WebDriverWait(driver, 20)
+    print("⌨ Enviando AccessID al navegador...")
 
-    campo = wait.until(
-        EC.element_to_be_clickable((By.XPATH, "//input[@placeholder='Buscar']"))
-    )
+    actions = ActionChains(driver)
 
-    campo.clear()
-    campo.send_keys(access_id)
-    campo.send_keys(Keys.ENTER)
+    actions.send_keys(access_id).perform()
 
+    print("✅ AccessID enviado")
+
+    time.sleep(1)
+
+    actions.send_keys(Keys.ENTER).perform()
+
+    print("🔎 Búsqueda ejecutada")
+    
+    
 
 if __name__ == "__main__":
 
@@ -81,7 +88,11 @@ if __name__ == "__main__":
     time.sleep(2)
 
     seleccionar_access_id(driver)
+    
+    time.sleep(3)
 
     buscar_access_id(driver, "1-3IOKEL31")
+    
+    time.sleep(3)
 
     input("Presiona ENTER para cerrar...")
