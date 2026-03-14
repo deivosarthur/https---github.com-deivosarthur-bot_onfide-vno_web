@@ -3,7 +3,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 
 # ID de tu Google Sheet
-SPREADSHEET_ID = "15uAFgW66hhT--WjuhhVB2DRj6Odh-N2ET3aiqhCAEvA"
+SPREADSHEET_ID = "1awqVk-aVi-4gVNsD66_7txezaA2bsbmxL3D5jpTtAoA"
 
 def obtener_access_ids():
 
