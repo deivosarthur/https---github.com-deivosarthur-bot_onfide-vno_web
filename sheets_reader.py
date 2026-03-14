@@ -44,12 +44,14 @@ def obtener_access_ids():
                     "access_id": access_id
                 })
 
-    return access_ids
+    return access_ids, sheet
 
 
 if __name__ == "__main__":
 
-    ids = obtener_access_ids()
+    resultado = obtener_access_ids()
+    registros = resultado[0]
+    sheet = resultado[1]
 
     print("Access_ID a revisar:")
     for item in ids:
