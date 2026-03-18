@@ -1,14 +1,14 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import time
-import pyperclip
-from selenium.webdriver.common.action_chains import ActionChains
 
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException
 
 
 URL_ONFIDE = "https://onfide-vno.onnetfibra.cl/vno/service-requests"
@@ -29,12 +29,7 @@ def iniciar_driver():
     return driver
 
 
-def esperar_login():
-    input("🔐 Haz login en ONFIDE y presiona ENTER aquí...")
-
-
 def abrir_filtros(driver):
-
     wait = WebDriverWait(driver, 20)
 
     boton = wait.until(
@@ -45,67 +40,55 @@ def abrir_filtros(driver):
 
 
 def seleccionar_access_id(driver):
-
     wait = WebDriverWait(driver, 20)
 
     access = wait.until(
-        EC.element_to_be_clickable(
-            (By.XPATH, "//*[contains(text(),'AccessId')]")
-        )
+        EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'AccessId')]"))
     )
 
     driver.execute_script("arguments[0].click();", access)
 
 
+# 🔥 FUNCIÓN CLAVE (LA QUE FUNCIONA)
 def buscar_access_id(driver, access_id):
 
-    print("⌨ Enviando AccessID al navegador...")
+    access_id_busqueda = f"02-{access_id}"
+
+    print("⌨ Enviando AccessID...")
+    print("Buscando:", access_id_busqueda)
 
     actions = ActionChains(driver)
 
-    actions.send_keys(access_id).perform()
+    # 🔥 LIMPIEZA REAL (CLAVE)
+    actions.send_keys(Keys.CONTROL + "a").perform()
+    actions.send_keys(Keys.BACKSPACE).perform()
 
-    print("✅ AccessID enviado")
+    time.sleep(0.3)
 
-    time.sleep(1)
-
+    # 🔥 escribir limpio
+    actions.send_keys(access_id_busqueda).perform()
     actions.send_keys(Keys.ENTER).perform()
 
-    print("🔎 Búsqueda ejecutada")
-    
-def abrir_resultado(driver):
+    print("✅ Búsqueda ejecutada")
 
-    print("🔎 Buscando resultados...")
+
+def abrir_resultado(driver):
 
     wait = WebDriverWait(driver, 10)
 
     try:
-
         fila = wait.until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, "tbody tr")
-            )
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "tbody tr"))
         )
 
-        print("✅ Resultado encontrado")
-
         fila.click()
-
-        print("📂 Orden abierta")
-
         return True
 
     except:
-
-        print("❌ No se encontró el AccessID")
-
         return False
-    
-    
-    
-def obtener_comentario_estado(driver):
 
-    print("📖 Buscando comentario de estado...")
+
+def obtener_comentario_estado(driver):
 
     wait = WebDriverWait(driver, 10)
 
@@ -115,94 +98,61 @@ def obtener_comentario_estado(driver):
         )
     )
 
-    texto = comentario.text
+    return comentario.text
 
-    print("--- Comentario encontrado:")
-    print(texto)
 
-    return texto
+def cerrar_orden(driver):
 
-def actualizar_comentario(sheet, fila, comentario):
+    try:
+        driver.execute_script("""
+        const boton = document.querySelector("button.app-button-clear");
+        if(boton){ boton.click(); }
+        """)
+    except:
+        pass
 
-    print("--- Guardando comentario en Google Sheets... ---")
 
-    sheet.update_cell(fila, 12, comentario)
+def obtener_comentario_tabla(driver, access_id):
 
-    print("---Comentario guardado en columna L ---")
+    wait = WebDriverWait(driver, 10)
+
+    access_id_busqueda = f"02-{access_id}"
+
+    try:
+        fila = wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "#dataTable tbody tr"))
+        )
+
+        celdas = fila.find_elements(By.CSS_SELECTOR, "td")
+
+        if len(celdas) < 19:
+            return "No encontrado en ONFIDE"
+
+        if celdas[2].text.strip() != access_id_busqueda:
+            return "No encontrado en ONFIDE"
+
+        return celdas[18].text.strip()
+
+    except:
+        return "No encontrado en ONFIDE"
 
 def limpiar_filtro_access_id(driver):
 
     print("🧹 Limpiando filtro AccessId...")
 
-    wait = WebDriverWait(driver, 5)
-
     try:
-        boton_close = wait.until(
-            EC.element_to_be_clickable(
-                (By.XPATH, "//ion-icon[@name='close']")
-            )
-        )
+        # 🔥 buscar TODOS los botones de cerrar
+        botones = driver.find_elements(By.XPATH, "//ion-icon[@name='close']")
 
-        driver.execute_script("arguments[0].click();", boton_close)
-
-        print("✅ Filtro eliminado")
-
-    except:
-        print("⚠ No había filtro activo")
-       
-       
-       
-def cerrar_orden(driver):
-
-    print("🔙 Cerrando panel de orden...")
-
-    try:
-
-        driver.execute_script("""
-        const boton = document.querySelector("button.app-button-clear");
-        if(boton){
-            boton.click();
-        }
-        """)
-
-        print("✅ Panel cerrado")
+        if botones:
+            driver.execute_script("arguments[0].click();", botones[0])
+            print("✅ Filtro eliminado")
+            time.sleep(0.5)
+        else:
+            print("⚠ No se encontró botón de limpieza")
 
     except Exception as e:
+        print("❌ Error limpiando filtro:", e)
 
-        print("⚠ No se pudo cerrar el panel")
-        print(e)
-        
-        
-
-if __name__ == "__main__":
-
-    driver = iniciar_driver()
-
-    esperar_login()
-
-    print("---Login detectado---")
-
-    abrir_filtros(driver)
-
-    time.sleep(2)
-
-    seleccionar_access_id(driver)
-
-    time.sleep(3)
-
-    buscar_access_id(driver, "1-3IOKEL31")
-
-    time.sleep(3)
-
-    encontrado = abrir_resultado(driver)
-
-    if encontrado:
-
-        time.sleep(2)
-
-        comentario = obtener_comentario_estado(driver)
-
-        print("Comentario final capturado:")
-        print(comentario)
-
-    input("Presiona ENTER para cerrar...")
+def actualizar_comentario(sheet, fila, comentario):
+    sheet.update_cell(fila, 12, comentario)

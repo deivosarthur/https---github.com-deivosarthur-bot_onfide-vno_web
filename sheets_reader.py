@@ -2,8 +2,11 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 
+
+#FECHA_OBJETIVO = datetime(2026, 3, 17).date()
+
 # ID de tu Google Sheet
-SPREADSHEET_ID = "1awqVk-aVi-4gVNsD66_7txezaA2bsbmxL3D5jpTtAoA"
+SPREADSHEET_ID = "1qDKjlblSkj_UC97SpIP9awKORBRPV1dhFJooKHBksq8"
 
 def obtener_access_ids():
 
@@ -21,23 +24,24 @@ def obtener_access_ids():
 
     access_ids = []
 
-    mes_actual = datetime.now().month
-    anio_actual = datetime.now().year
+    hoy = datetime.now().date()
 
     for i, row in enumerate(rows):
 
         fecha = row["FECHA"]
         rev = row["REV"]
         access_id = row["Access_ID"]
+        observacion = row["OBSERVACION"]
 
         try:
             fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
         except:
             continue
 
-        if fecha_dt.month == mes_actual and fecha_dt.year == anio_actual:
+        if fecha_dt.date() == hoy:
+       
 
-            if rev == "" or rev == "NOK":
+            if (rev == "" or rev == "NOK") and observacion == "":
 
                 access_ids.append({
                     "fila": i + 2,
@@ -49,10 +53,8 @@ def obtener_access_ids():
 
 if __name__ == "__main__":
 
-    resultado = obtener_access_ids()
-    registros = resultado[0]
-    sheet = resultado[1]
+    registros, sheet = obtener_access_ids()
 
     print("Access_ID a revisar:")
-    for item in ids:
+    for item in registros:
         print(item)
