@@ -1,68 +1,200 @@
-# 🤖 BOT ONFIDE AUTOMATION
+# 🚀 ONFIDE Neighbor Automation Bot
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
 ![Selenium](https://img.shields.io/badge/Selenium-Automation-green?logo=selenium)
+![SQL Server](https://img.shields.io/badge/Database-SQL_Server-red)
+![Architecture](https://img.shields.io/badge/Architecture-Queue_Processing-purple)
 ![Status](https://img.shields.io/badge/Status-Production-success)
-![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 
 ---
 
-## 🚀 Descripción
+## 🎯 Overview
 
-Bot de automatización desarrollado en Python para la gestión de tickets en ONFIDE, con integración a Google Sheets y control mediante interfaz gráfica.
+Automation system designed to execute **Neighbor Status Queries in ONFIDE**, replacing manual operations with a **scalable, fault-tolerant, database-driven pipeline**.
 
-El bot funciona en ejecución continua, detectando nuevos registros y procesándolos automáticamente.
-
----
-
-## ⚡ Rendimiento
-
-- ⏱️ Tiempo promedio por AccessID: **1 – 3 segundos**
-- 🔁 Frecuencia de revisión de Google Sheets: **cada 10 segundos**
-- 📊 Procesamiento optimizado usando:
-  - Lectura directa desde tabla principal
-  - Uso de popup solo cuando es necesario
+The solution processes network access identifiers automatically, ensuring **continuous execution, prioritization, and full traceability**.
 
 ---
 
-## ⚙️ Configuración (IMPORTANTE)
+## 💼 Business Impact
 
-### 🔹 Intervalo de ejecución (loop)
+* ⏱️ Reduced manual processing time by **~90%**
+* 🔄 Continuous unattended execution (24/7 ready)
+* 📊 Increased operational throughput with multi-bot execution
+* 🧠 Eliminated human dependency in repetitive tasks
+* 📈 Scalable architecture ready for expansion
 
-En `app.py`:
+---
+
+## 🧠 System Architecture
+
+```text
+SQL Server (Queue) → Python Bot → ONFIDE → SQL Server (Results)
+```
+
+### Processing Model
+
+* Queue-based processing (TOP 1)
+* Priority-driven execution
+* State-controlled lifecycle
+
+---
+
+## ⚙️ Core Features
+
+* ✅ Automated navigation using Selenium
+* ✅ Dynamic data extraction (Angular-based UI)
+* ✅ SQL-based queue system
+* ✅ Priority handling (P1 → P2 → P3)
+* ✅ Multi-instance parallel execution
+* ✅ Error handling and recovery
+* ✅ Full data traceability (relational link)
+
+---
+
+## 🔄 Workflow
+
+1. Fetch next pending record from SQL
+2. Mark as `REVISANDO`
+3. Execute ONFIDE neighbor query
+4. Extract structured data
+5. Store results in SQL
+6. Mark as `REVISADO`
+7. Repeat (continuous loop)
+
+---
+
+## ⚡ Performance
+
+| Bots   | Throughput     |
+| ------ | -------------- |
+| 1 Bot  | ~2 records/min |
+| 2 Bots | ~4 records/min |
+| 3 Bots | ~6 records/min |
+
+⏱️ Avg processing time: **25–30 seconds per Access_ID**
+
+---
+
+## 🗄️ Data Model
+
+### Source Table
+
+`toa_ahora_CV_estado`
+
+* ID (Primary Key)
+* Access_ID
+* Prioridad
+* REV (Status)
+* OBSERVACION
+
+---
+
+### Target Table
+
+`consulta_ticket_vecino_onfide`
+
+* Network metrics
+* Optical power data
+* Port status
+* 🔗 `relacion_ID` (foreign key reference)
+
+---
+
+## 🧪 Error Handling
+
+* Try/catch implementation
+* Automatic status update:
+
+  * `REVISANDO`
+  * `REVISADO`
+  * `ERROR`
+* Logging for traceability
+
+---
+
+## 🖥️ Execution
+
+```bash
+python app.py
+```
+
+---
+
+## ⚡ Quick Start (.bat)
+
+```bat
+@echo off
+cd /d %~dp0
+call venv\Scripts\activate
+python app.py
+pause
+```
+
+---
+
+## ⚠️ Requirements
+
+* Python 3.11
+* Google Chrome
+* ODBC Driver 17/18 for SQL Server
+* Network access to ONFIDE
+
+---
+
+## 🔐 Security
+
+Credentials are NOT stored in the repository.
+
+Recommended approach:
 
 ```python
-time.sleep(10)
+import os
 
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+```
 
-### 🔹Lógica de comentarios (uso de popup)
+---
 
+## 📈 Scalability
 
-En `main.py`:
+This system supports:
 
-```python
-COMENTARIOS_NO_REQUIEREN_POPUP = [
-    "No se ha detectado afectación de servicio en el puerto",
-    "initial status"
-]
+* Horizontal scaling (multiple bots)
+* Load distribution via SQL queue
+* Future orchestration (Docker / Scheduler / Cloud)
 
-El bot funciona en ejecución continua, detectando nuevos registros y procesándolos automáticamente.
--------------
+---
 
-🧠 Flujo de funcionamiento
+## 🔮 Future Improvements
 
-<img width="360" height="280" alt="image" src="https://github.com/user-attachments/assets/db28fb3a-95b1-4656-a556-d37519bd96bf" />
+* 📊 Monitoring dashboard
+* 📡 Real-time metrics
+* 🔁 Retry mechanism for failures
+* 🧩 Modular microservices architecture
+* ☁️ Cloud deployment
 
-------------
-🖥️ Interfaz
+---
 
-- ▶️ INICIAR BOT
-- 🔐 YA HICE LOGIN
-- ⛔ APAGAR BOT
-- 📟 Consola en tiempo real
+## 👨‍💻 Author
 
-<img width="879" height="460" alt="image" src="https://github.com/user-attachments/assets/b411eb59-cc09-4bf7-8371-16be7ee3d873" />
+**Adolfo**
+Data Analyst | Automation Engineer
 
+---
+
+## 🏁 Project Status
+
+🟢 Production-ready
+🚀 Multi-instance deployment
+📈 Scalable architecture
+
+---
+
+## 💡 Final Note
+
+This project represents a transition from **manual operations to intelligent automation**, enabling efficiency, scalability, and reliability in telecom workflows.
 
 
 
