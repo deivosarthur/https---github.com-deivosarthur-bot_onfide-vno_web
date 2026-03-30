@@ -179,7 +179,7 @@ This system supports:
 
 ## 👨‍💻 Author
 
-**Adolfo**
+**Adolfo Puentes**
 Data Analyst | Automation Engineer
 
 ---
