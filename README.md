@@ -1,119 +1,125 @@
-# 🚀 ONFIDE Neighbor Automation Bot
+# 🚀 Bot de Automatización ONFIDE – Consulta Vecino
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
 ![Selenium](https://img.shields.io/badge/Selenium-Automation-green?logo=selenium)
 ![SQL Server](https://img.shields.io/badge/Database-SQL_Server-red)
-![Architecture](https://img.shields.io/badge/Architecture-Queue_Processing-purple)
-![Status](https://img.shields.io/badge/Status-Production-success)
+![Arquitectura](https://img.shields.io/badge/Arquitectura-Procesamiento_en_cola-purple)
+![Estado](https://img.shields.io/badge/Estado-Producción-success)
 
 ---
 
-## 🎯 Overview
+## 🎯 Descripción General
 
-Automation system designed to execute **Neighbor Status Queries in ONFIDE**, replacing manual operations with a **scalable, fault-tolerant, database-driven pipeline**.
+Sistema de automatización desarrollado en Python para ejecutar consultas de **estado vecino en ONFIDE**, reemplazando procesos manuales por un flujo **automatizado, escalable y controlado desde base de datos**.
 
-The solution processes network access identifiers automatically, ensuring **continuous execution, prioritization, and full traceability**.
-
----
-
-## 💼 Business Impact
-
-* ⏱️ Reduced manual processing time by **~90%**
-* 🔄 Continuous unattended execution (24/7 ready)
-* 📊 Increased operational throughput with multi-bot execution
-* 🧠 Eliminated human dependency in repetitive tasks
-* 📈 Scalable architecture ready for expansion
+El bot opera de forma continua, procesando registros según prioridad y asegurando trazabilidad completa.
 
 ---
 
-## 🧠 System Architecture
+## 💼 Impacto en el Negocio
+
+* ⏱️ Reducción de tiempo operativo en **~90%**
+* 🔄 Ejecución continua sin intervención manual
+* 📊 Mayor volumen de procesamiento
+* 🧠 Eliminación de tareas repetitivas
+* 📈 Base para escalabilidad y automatización de nuevos procesos
+
+---
+
+## 🧠 Arquitectura del Sistema
 
 ```text
-SQL Server (Queue) → Python Bot → ONFIDE → SQL Server (Results)
+SQL Server (cola) → Bot (Selenium) → ONFIDE → SQL Server (resultados)
 ```
 
-### Processing Model
+### Modelo de procesamiento
 
-* Queue-based processing (TOP 1)
-* Priority-driven execution
-* State-controlled lifecycle
-
----
-
-## ⚙️ Core Features
-
-* ✅ Automated navigation using Selenium
-* ✅ Dynamic data extraction (Angular-based UI)
-* ✅ SQL-based queue system
-* ✅ Priority handling (P1 → P2 → P3)
-* ✅ Multi-instance parallel execution
-* ✅ Error handling and recovery
-* ✅ Full data traceability (relational link)
+* Procesamiento tipo cola (`TOP 1`)
+* Priorización automática (P1 → P2 → P3)
+* Control de estados en base de datos
 
 ---
 
-## 🔄 Workflow
+## ⚙️ Funcionalidades
 
-1. Fetch next pending record from SQL
-2. Mark as `REVISANDO`
-3. Execute ONFIDE neighbor query
-4. Extract structured data
-5. Store results in SQL
-6. Mark as `REVISADO`
-7. Repeat (continuous loop)
-
----
-
-## ⚡ Performance
-
-| Bots   | Throughput     |
-| ------ | -------------- |
-| 1 Bot  | ~2 records/min |
-| 2 Bots | ~4 records/min |
-| 3 Bots | ~6 records/min |
-
-⏱️ Avg processing time: **25–30 seconds per Access_ID**
+* ✅ Automatización completa con Selenium
+* ✅ Extracción de datos dinámicos (Angular)
+* ✅ Integración directa con SQL Server
+* ✅ Procesamiento basado en prioridad
+* ✅ Ejecución en paralelo (multi-bot)
+* ✅ Manejo de errores
+* ✅ Trazabilidad completa (relación entre tablas)
 
 ---
 
-## 🗄️ Data Model
+## 🔄 Flujo de ejecución
 
-### Source Table
+1. Obtiene el siguiente registro pendiente desde SQL
+2. Marca el registro como `REVISANDO`
+3. Ejecuta la consulta en ONFIDE
+4. Extrae datos estructurados
+5. Guarda resultados en SQL
+6. Marca como `REVISADO`
+7. Repite el proceso automáticamente
+
+---
+
+## ⚡ Rendimiento
+
+| Bots   | Procesamiento    |
+| ------ | ---------------- |
+| 1 bot  | ~2 registros/min |
+| 2 bots | ~4 registros/min |
+| 3 bots | ~6 registros/min |
+
+⏱️ Tiempo promedio: **25–30 segundos por Access_ID**
+
+---
+
+## 🗄️ Modelo de Datos
+
+### 🔹 Tabla origen
 
 `toa_ahora_CV_estado`
 
-* ID (Primary Key)
+Campos clave:
+
+* ID
 * Access_ID
 * Prioridad
-* REV (Status)
+* REV
 * OBSERVACION
 
 ---
 
-### Target Table
+### 🔹 Tabla destino
 
 `consulta_ticket_vecino_onfide`
 
-* Network metrics
-* Optical power data
-* Port status
-* 🔗 `relacion_ID` (foreign key reference)
+Incluye:
+
+* Datos técnicos
+* Potencias ópticas
+* Estado de puerto
+* 🔗 `relacion_ID` (relación con tabla origen)
 
 ---
 
-## 🧪 Error Handling
+## 🧪 Manejo de errores
 
-* Try/catch implementation
-* Automatic status update:
+* Captura de excepciones
+* Registro de estado en base de datos
+* Continuidad del proceso (no se detiene el bot)
 
-  * `REVISANDO`
-  * `REVISADO`
-  * `ERROR`
-* Logging for traceability
+Estados:
+
+* `REVISANDO`
+* `REVISADO`
+* `ERROR`
 
 ---
 
-## 🖥️ Execution
+## 🖥️ Ejecución
 
 ```bash
 python app.py
@@ -121,7 +127,7 @@ python app.py
 
 ---
 
-## ⚡ Quick Start (.bat)
+## ⚡ Ejecución rápida (.bat)
 
 ```bat
 @echo off
@@ -133,20 +139,20 @@ pause
 
 ---
 
-## ⚠️ Requirements
+## ⚠️ Requisitos
 
 * Python 3.11
 * Google Chrome
-* ODBC Driver 17/18 for SQL Server
-* Network access to ONFIDE
+* ODBC Driver SQL Server
+* Acceso a ONFIDE
 
 ---
 
-## 🔐 Security
+## 🔐 Seguridad
 
-Credentials are NOT stored in the repository.
+No se almacenan credenciales en el código.
 
-Recommended approach:
+Se recomienda uso de variables de entorno:
 
 ```python
 import os
@@ -157,44 +163,43 @@ DB_PASS = os.getenv("DB_PASS")
 
 ---
 
-## 📈 Scalability
+## 📈 Escalabilidad
 
-This system supports:
+El sistema permite:
 
-* Horizontal scaling (multiple bots)
-* Load distribution via SQL queue
-* Future orchestration (Docker / Scheduler / Cloud)
-
----
-
-## 🔮 Future Improvements
-
-* 📊 Monitoring dashboard
-* 📡 Real-time metrics
-* 🔁 Retry mechanism for failures
-* 🧩 Modular microservices architecture
-* ☁️ Cloud deployment
+* Ejecución en múltiples instancias
+* Distribución de carga mediante SQL
+* Expansión a nuevos procesos automatizados
 
 ---
 
-## 👨‍💻 Author
+## 🔮 Mejoras futuras
 
-**Adolfo Puentes**
-Data Analyst | Automation Engineer
-
----
-
-## 🏁 Project Status
-
-🟢 Production-ready
-🚀 Multi-instance deployment
-📈 Scalable architecture
+* 📊 Dashboard de monitoreo
+* 🔁 Reintentos automáticos
+* 🚀 Ejecución como servicio
+* ☁️ Despliegue en la nube
 
 ---
 
-## 💡 Final Note
+## 👨‍💻 Autor
 
-This project represents a transition from **manual operations to intelligent automation**, enabling efficiency, scalability, and reliability in telecom workflows.
+Adolfo
+Analista de Datos | Automatización
+
+---
+
+## 🏁 Estado del proyecto
+
+🟢 En producción
+🚀 Multi-bot activo
+📈 Escalable
+
+---
+
+## 💡 Nota final
+
+Este proyecto representa la transición desde procesos manuales hacia una **arquitectura automatizada, escalable y orientada a datos**, mejorando eficiencia operativa y reduciendo errores humanos.
 
 
 
