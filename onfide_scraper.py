@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import time
-
+from config import USUARIO_ONFIDE, PASSWORD_ONFIDE
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -14,6 +14,173 @@ from selenium.common.exceptions import TimeoutException
 URL_ONFIDE = "https://onfide-vno.onnetfibra.cl/vno/service-requests"
 
 
+def sesion_activa(driver):
+
+    try:
+
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//button[.//ion-icon[@name='options-outline']]")
+            )
+        )
+
+        return True
+
+    except:
+        return False
+
+def reautenticar(driver):
+
+    print("🔒 Sesión expirada")
+
+    try:
+
+        # ventana login ONFIDE
+        botones = driver.find_elements(
+            By.CSS_SELECTOR,
+            "ion-button"
+        )
+
+        if botones:
+
+            driver.execute_script(
+                "arguments[0].click();",
+                botones[0]
+            )
+
+            print("✅ Botón login ONFIDE presionado")
+
+        WebDriverWait(driver, 10).until(
+            lambda d: len(d.window_handles) > 1
+        )
+
+        # cambiar a ventana WSO2
+        ventana_principal = driver.current_window_handle
+
+        if len(driver.window_handles) > 1:
+
+            driver.switch_to.window(
+                driver.window_handles[-1]
+            )
+
+            print("✅ Ventana WSO2 detectada")
+
+        else:
+            print("❌ No se abrió ventana WSO2")
+            return
+
+        wait = WebDriverWait(driver, 15)
+
+        # usuario
+        usuario = wait.until(
+            EC.presence_of_element_located(
+                (By.ID, "usernameUserInput")
+            )
+        )
+        print("URL WSO2:", driver.current_url)
+        usuario.clear()
+        usuario.send_keys(USUARIO_ONFIDE)
+        driver.execute_script(
+            """
+            document.getElementById('username').value = arguments[0];
+            """,
+            USUARIO_ONFIDE
+        )
+        print("✅ Usuario ingresado")
+
+        # password
+        password = driver.find_element(
+            By.ID,
+            "password"
+        )
+
+        password.clear()
+        password.send_keys(PASSWORD_ONFIDE)
+
+        print("✅ Password ingresada")
+        
+        # DEBUG
+        print(
+            "usernameUserInput:",
+            driver.find_element(
+                By.ID,
+                "usernameUserInput"
+            ).get_attribute("value")
+        )
+
+        print(
+            "username hidden:",
+            driver.find_element(
+                By.ID,
+                "username"
+            ).get_attribute("value")
+        )
+
+        print(
+            "password largo:",
+            len(
+                driver.find_element(
+                    By.ID,
+                    "password"
+                ).get_attribute("value")
+            )
+        )
+        cerrar_banner_cookies(driver)
+        # recordar equipo
+        recordar = driver.find_element(
+            By.ID,
+            "chkRemember"
+        )
+
+        if not recordar.is_selected():
+            recordar.click()
+
+        print("✅ Recordarme activado")
+
+        # botón login
+        boton_login = driver.find_element(
+            By.ID,
+            "sign-in-button"
+        )
+
+        boton_login.click()
+        
+        print("✅ Login enviado")
+        ##############################
+        time.sleep(5)
+
+        print("Ventanas abiertas:", len(driver.window_handles))
+
+        login_exitoso = False
+
+        for i, handle in enumerate(driver.window_handles):
+
+            driver.switch_to.window(handle)
+
+            url = driver.current_url
+
+            print(f"Ventana {i}: {url}")
+
+            if "onfide-vno.onnetfibra.cl" in url:
+                login_exitoso = True
+
+        if login_exitoso:
+            print("✅ Login exitoso")
+        else:
+            print("❌ Login falló")
+        ########################################
+        #driver.close()
+
+        #driver.switch_to.window(
+        #    ventana_principal
+        #)
+
+    except Exception as e:
+
+        print("❌ Error reautenticando:", e)
+        
+        
+        
 def iniciar_driver():
 
     options = webdriver.ChromeOptions()
@@ -156,3 +323,33 @@ def limpiar_filtro_access_id(driver):
 
 def actualizar_comentario(sheet, fila, comentario):
     sheet.update_cell(fila, 12, comentario)
+    
+    
+
+
+def cerrar_banner_cookies(driver):
+
+    try:
+
+        boton = WebDriverWait(driver, 3).until(
+
+            EC.element_to_be_clickable(
+
+                (
+                    By.CSS_SELECTOR,
+                    "button[data-testid='cookie-consent-banner-confirm-button']"
+                )
+
+            )
+
+        )
+
+        boton.click()
+
+        print("✅ Banner de cookies cerrado")
+
+        time.sleep(1)
+
+    except TimeoutException:
+
+        pass

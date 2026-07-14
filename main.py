@@ -1,107 +1,134 @@
-from sheets_reader import obtener_access_ids
 import time
+import os
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from automation.proceso_onfide import ejecutar_bot
+from onfide_scraper import iniciar_driver
 
-from selenium.common.exceptions import TimeoutException
+from bot_controller import set_driver
 
-from onfide_scraper import *
+from bot_state import BOT_STATE
 
+from heartbeat import guardar_estado
+from datetime import datetime
+from automation.session_manager import (
+    validar_sesion
+)
+from onfide_scraper import iniciar_driver
 
-COMENTARIOS_NO_REQUIEREN_POPUP = [
-    "No se ha detectado afectación de servicio en el puerto",
-    "initial status"
-]
+from automation.restart_manager import (
+    reinicio_completo
+)
+from monitoring.command_listener import (
+    procesar_comandos
+)
+if __name__ == "__main__":
 
+    driver = iniciar_driver()
+    
+    set_driver(driver)
 
-def ejecutar_bot(driver, log=print):
+    BOT_STATE["pid_bot"] = os.getpid()
 
-    if driver is None:
-        log("ERROR: driver es None (no inicializado)")
-        return False
+    BOT_STATE["pid_chromedriver"] = (
+        driver.service.process.pid
+    )
 
-    wait = WebDriverWait(driver, 15)
+    BOT_STATE["pid_chrome"] = (
+        driver.capabilities["goog:processID"]
+    )
 
-    log("Validando ONFIDE...")
+    BOT_STATE["estado"] = "INICIANDO"
 
-    try:
-        wait.until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//button[.//ion-icon[@name='options-outline']]")
-            )
-        )
-    except TimeoutException:
-        log("ONFIDE no está listo")
-        return False
+    BOT_STATE["mensaje"] = "Inicializando ONFIDE"
 
-    log("Leyendo Google Sheets...")
+    guardar_estado()
 
-    registros, sheet = obtener_access_ids()
+   
 
-    log(f"Se encontraron {len(registros)} registros")
-
-    if len(registros) == 0:
-        return False
-
-    # 🔥 SOLO UNA VEZ
-    abrir_filtros(driver)
-    seleccionar_access_id(driver)
-
-    for i, registro in enumerate(registros, start=1):
-
-        access_id = registro["access_id"]
-        fila = registro["fila"]
-
-        if not access_id:
-            continue
-
-        log(f"\nAccessID {i}/{len(registros)} → {access_id}")
-
-        buscar_access_id(driver, access_id)
-
-        access_id_busqueda = f"02-{access_id}"
-
+    while True:
+        
         try:
-            wait.until(
-                EC.text_to_be_present_in_element(
-                    (By.CSS_SELECTOR, "#dataTable tbody tr td:nth-child(3)"),
-                    access_id_busqueda
+        
+            comando = procesar_comandos()
+
+            if comando:
+
+                print(
+                    "Comando recibido correctamente"
+                )
+
+                BOT_STATE["reinicios"] += 1
+
+                BOT_STATE["mensaje"] = (
+                    "Reinicio remoto"
+                )
+
+                guardar_estado()
+
+                reinicio_completo()
+            
+
+            BOT_STATE["estado"] = "VALIDANDO"
+
+            BOT_STATE["mensaje"] = "Validando sesión"
+            
+
+            guardar_estado()
+
+            validar_sesion(driver)
+            
+            BOT_STATE["estado"] = "PROCESANDO"
+
+            BOT_STATE["mensaje"] = "Ejecutando proceso"
+
+            guardar_estado()
+
+            
+
+            ejecutado = ejecutar_bot(driver)
+
+            if ejecutado:
+
+                BOT_STATE["estado"] = "OK"
+
+                BOT_STATE["mensaje"] = "Proceso completado"
+
+                BOT_STATE["ciclos_ok"] += 1
+                
+
+            else:
+
+                BOT_STATE["estado"] = "OK"
+
+                BOT_STATE["mensaje"] = "Sin datos"
+
+                BOT_STATE["ciclos_ok"] += 1
+                
+            guardar_estado()
+
+        except Exception as e:
+
+            BOT_STATE["estado"] = "ERROR"
+
+            BOT_STATE["mensaje"] = str(e)
+
+            BOT_STATE["errores"] += 1
+
+            print(e)
+
+            guardar_estado()
+        
+
+        for _ in range(10):
+
+            BOT_STATE["ultima_actualizacion"] = (
+                datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S"
                 )
             )
 
-            comentario = obtener_comentario_tabla(driver, access_id)
+            guardar_estado()
 
-            if not any(x in comentario for x in COMENTARIOS_NO_REQUIEREN_POPUP):
+            time.sleep(1)
 
-                log("Abriendo popup")
-
-                encontrado = abrir_resultado(driver)
-
-                if encontrado:
-                    comentario = obtener_comentario_estado(driver)
-                    cerrar_orden(driver)
-
-        except TimeoutException:
-            log("No encontrado en ONFIDE")
-            comentario = "No encontrado en ONFIDE"
-
-        log("Comentario:")
-        log(comentario)
-
-        actualizar_comentario(sheet, fila, comentario)
-
-        time.sleep(1)
         
-        limpiar_filtro_access_id(driver)
-
-        time.sleep(1)
-
-        # 🔥 REACTIVAR FILTRO
-        abrir_filtros(driver)
-        seleccionar_access_id(driver)
-
-    log("Ciclo finalizado")
-
-    return True

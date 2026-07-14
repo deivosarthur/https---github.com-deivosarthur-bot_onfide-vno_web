@@ -1,0 +1,18 @@
+{
+    "bot": "ONFIDE",
+    "version": "1.0",
+    "estado": "ERROR",
+    "mensaje": "No fue posible iniciar sesión.",
+    "ultima_actualizacion": "2026-07-02 18:07:51",
+    "ultima_descarga": "",
+    "ciclos_ok": 0,
+    "errores": 11,
+    "errores_consecutivos": 0,
+    "alerta_error_enviada": false,
+    "session_recovery": 0,
+    "reinicios": 0,
+    "pid_bot": 7268,
+    "pid_chromedriver": 20664,
+    "pid_chrome": 17612,
+    "uptime_inicio": "2026-07-02 18:05:43"
+}

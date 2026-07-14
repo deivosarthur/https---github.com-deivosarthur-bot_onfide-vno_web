@@ -32,6 +32,7 @@ def obtener_access_ids():
         rev = row["REV"]
         access_id = row["Access_ID"]
         observacion = row["OBSERVACION"]
+        orden_de_trabajo = row["Orden_de_Trabajo"]
 
         try:
             fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
@@ -45,7 +46,9 @@ def obtener_access_ids():
 
                 access_ids.append({
                     "fila": i + 2,
-                    "access_id": access_id
+                    "access_id": access_id,
+                    "orden_de_trabajo": orden_de_trabajo,
+                    "observacion": observacion
                 })
 
     return access_ids, sheet

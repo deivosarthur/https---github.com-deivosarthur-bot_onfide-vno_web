@@ -1,0 +1,22 @@
+CREATE TABLE consulta_ticket_vecino_onfide (
+    id_consulta_tabla INT IDENTITY(1,1) PRIMARY KEY,
+    id_consulta VARCHAR(50),
+    fecha_hora DATETIME,
+    estado_consulta VARCHAR(50),
+    codigo_retorno VARCHAR(50),
+    descripcion VARCHAR(100),
+    tipo_conector VARCHAR(50),
+    codigo_cto VARCHAR(50),
+    tecnologia VARCHAR(50),
+    coordenada_x DECIMAL(12,8),
+    coordenada_y DECIMAL(12,8),
+    estado_cto VARCHAR(50),
+    access_id VARCHAR(50),
+    puerto_fisico INT,
+    cuenta_logica INT,
+    posicion VARCHAR(50),
+    potencia_antes_rx DECIMAL(10,5),
+    potencia_actual_rc DECIMAL(10,5),
+    estado_puerto VARCHAR(100),
+    descripcion_status VARCHAR(255)
+);
