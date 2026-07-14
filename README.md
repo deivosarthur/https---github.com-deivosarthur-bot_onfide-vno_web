@@ -1,68 +1,205 @@
-# 🤖 BOT ONFIDE AUTOMATION
+# 🚀 Bot de Automatización ONFIDE – Consulta Vecino
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
 ![Selenium](https://img.shields.io/badge/Selenium-Automation-green?logo=selenium)
-![Status](https://img.shields.io/badge/Status-Production-success)
-![Platform](https://img.shields.io/badge/Platform-Windows-blue)
+![SQL Server](https://img.shields.io/badge/Database-SQL_Server-red)
+![Arquitectura](https://img.shields.io/badge/Arquitectura-Procesamiento_en_cola-purple)
+![Estado](https://img.shields.io/badge/Estado-Producción-success)
 
 ---
 
-## 🚀 Descripción
+## 🎯 Descripción General
 
-Bot de automatización desarrollado en Python para la gestión de tickets en ONFIDE, con integración a Google Sheets y control mediante interfaz gráfica.
+Sistema de automatización desarrollado en Python para ejecutar consultas de **estado vecino en ONFIDE**, reemplazando procesos manuales por un flujo **automatizado, escalable y controlado desde base de datos**.
 
-El bot funciona en ejecución continua, detectando nuevos registros y procesándolos automáticamente.
+El bot opera de forma continua, procesando registros según prioridad y asegurando trazabilidad completa.
+
+---
+
+## 💼 Impacto en el Negocio
+
+* ⏱️ Reducción de tiempo operativo en **~90%**
+* 🔄 Ejecución continua sin intervención manual
+* 📊 Mayor volumen de procesamiento
+* 🧠 Eliminación de tareas repetitivas
+* 📈 Base para escalabilidad y automatización de nuevos procesos
+
+---
+
+## 🧠 Arquitectura del Sistema
+
+```text
+SQL Server (cola) → Bot (Selenium) → ONFIDE → SQL Server (resultados)
+```
+
+### Modelo de procesamiento
+
+* Procesamiento tipo cola (`TOP 1`)
+* Priorización automática (P1 → P2 → P3)
+* Control de estados en base de datos
+
+---
+
+## ⚙️ Funcionalidades
+
+* ✅ Automatización completa con Selenium
+* ✅ Extracción de datos dinámicos (Angular)
+* ✅ Integración directa con SQL Server
+* ✅ Procesamiento basado en prioridad
+* ✅ Ejecución en paralelo (multi-bot)
+* ✅ Manejo de errores
+* ✅ Trazabilidad completa (relación entre tablas)
+
+---
+
+## 🔄 Flujo de ejecución
+
+1. Obtiene el siguiente registro pendiente desde SQL
+2. Marca el registro como `REVISANDO`
+3. Ejecuta la consulta en ONFIDE
+4. Extrae datos estructurados
+5. Guarda resultados en SQL
+6. Marca como `REVISADO`
+7. Repite el proceso automáticamente
 
 ---
 
 ## ⚡ Rendimiento
 
-- ⏱️ Tiempo promedio por AccessID: **1 – 3 segundos**
-- 🔁 Frecuencia de revisión de Google Sheets: **cada 10 segundos**
-- 📊 Procesamiento optimizado usando:
-  - Lectura directa desde tabla principal
-  - Uso de popup solo cuando es necesario
+| Bots   | Procesamiento    |
+| ------ | ---------------- |
+| 1 bot  | ~2 registros/min |
+| 2 bots | ~4 registros/min |
+| 3 bots | ~6 registros/min |
+
+⏱️ Tiempo promedio: **25–30 segundos por Access_ID**
 
 ---
 
-## ⚙️ Configuración (IMPORTANTE)
+## 🗄️ Modelo de Datos
 
-### 🔹 Intervalo de ejecución (loop)
+### 🔹 Tabla origen
 
-En `app.py`:
+`toa_ahora_CV_estado`
+
+Campos clave:
+
+* ID
+* Access_ID
+* Prioridad
+* REV
+* OBSERVACION
+
+---
+
+### 🔹 Tabla destino
+
+`consulta_ticket_vecino_onfide`
+
+Incluye:
+
+* Datos técnicos
+* Potencias ópticas
+* Estado de puerto
+* 🔗 `relacion_ID` (relación con tabla origen)
+
+---
+
+## 🧪 Manejo de errores
+
+* Captura de excepciones
+* Registro de estado en base de datos
+* Continuidad del proceso (no se detiene el bot)
+
+Estados:
+
+* `REVISANDO`
+* `REVISADO`
+* `ERROR`
+
+---
+
+## 🖥️ Ejecución
+
+```bash
+python app.py
+```
+
+---
+
+## ⚡ Ejecución rápida (.bat)
+
+```bat
+@echo off
+cd /d %~dp0
+call venv\Scripts\activate
+python app.py
+pause
+```
+
+---
+
+## ⚠️ Requisitos
+
+* Python 3.11
+* Google Chrome
+* ODBC Driver SQL Server
+* Acceso a ONFIDE
+
+---
+
+## 🔐 Seguridad
+
+No se almacenan credenciales en el código.
+
+Se recomienda uso de variables de entorno:
 
 ```python
-time.sleep(10)
+import os
 
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+```
 
-### 🔹Lógica de comentarios (uso de popup)
+---
 
+## 📈 Escalabilidad
 
-En `main.py`:
+El sistema permite:
 
-```python
-COMENTARIOS_NO_REQUIEREN_POPUP = [
-    "No se ha detectado afectación de servicio en el puerto",
-    "initial status"
-]
+* Ejecución en múltiples instancias
+* Distribución de carga mediante SQL
+* Expansión a nuevos procesos automatizados
 
-El bot funciona en ejecución continua, detectando nuevos registros y procesándolos automáticamente.
--------------
+---
 
-🧠 Flujo de funcionamiento
+## 🔮 Mejoras futuras
 
-<img width="360" height="280" alt="image" src="https://github.com/user-attachments/assets/db28fb3a-95b1-4656-a556-d37519bd96bf" />
+* 📊 Dashboard de monitoreo
+* 🔁 Reintentos automáticos
+* 🚀 Ejecución como servicio
+* ☁️ Despliegue en la nube
 
-------------
-🖥️ Interfaz
+---
 
-- ▶️ INICIAR BOT
-- 🔐 YA HICE LOGIN
-- ⛔ APAGAR BOT
-- 📟 Consola en tiempo real
+## 👨‍💻 Autor
 
-<img width="879" height="460" alt="image" src="https://github.com/user-attachments/assets/b411eb59-cc09-4bf7-8371-16be7ee3d873" />
+Adolfo
+Analista de Datos | Automatización
 
+---
+
+## 🏁 Estado del proyecto
+
+🟢 En producción
+🚀 Multi-bot activo
+📈 Escalable
+
+---
+
+## 💡 Nota final
+
+Este proyecto representa la transición desde procesos manuales hacia una **arquitectura automatizada, escalable y orientada a datos**, mejorando eficiencia operativa y reduciendo errores humanos.
 
 
 
